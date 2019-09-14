@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Shopping Cart</title>
+
+    <style>
+        /* Vue */
+        [v-cloak] {
+            display: none;
+        }
+
+        /* General */
+        body {
+            background-color: #ddd;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .app {
+            margin: 0;
+            padding: 0;
+        }
+
+        .price::before {
+            content: 'R';
+            font-size: small;
+            padding-right: 0.15em;
+        }
+
+        /* Header */
+        header {
+            display: block;
+            background-color: #fff;
+            overflow: hidden;
+            max-width: 100%;
+            width: 100%;
+        }
+
+        header .logo {
+            float: left;
+            font-size: larger;
+            padding: 10px;
+            margin-left: 15px;
+        }
+
+        header .cart {
+            color: #888;
+            cursor: pointer;
+            float: right;
+            padding: 10px;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+
+        header .cart-popup {
+            position: absolute;
+        }
+
+        /* Cart */
+        /*.cart {
+                background-image: url('img/cart.svg');
+                background-repeat: no-repeat;
+            }*/
+        .cart .num-items::before,
+        header .cart .num-items::after {
+            color: #888;
+            font-weight: normal;
+        }
+
+        .cart .num-items::before {
+            content: '[';
+            padding-right: 2px;
+        }
+
+        .cart .num-items::after {
+            content: ']';
+            padding-left: 2px;
+        }
+
+        .cart .num-items {
+            color: #a4f;
+            font-weight: bold;
+        }
+
+        /* Cart Pop-up */
+        .cart-popup {
+            background-color: #fff;
+            border: 1px #ddd solid;
+            border-radius: 5px;
+            min-width: 350px;
+            padding: 5px;
+            top: 40px;
+            right: 10px;
+        }
+
+        .cart-popup .empty {
+            display: flex;
+            padding: 10px 5px;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+        }
+
+        .cart-popup .empty img {
+            height: 60px;
+            width: 60px;
+        }
+
+        .cart-popup table {
+            width: 100%;
+        }
+
+        .cart-popup th {
+            text-align: left;
+        }
+
+        .cart-popup .item img {
+            max-height: 55px;
+            max-width: 55px;
+        }
+        
+        .cart-popup .remove {
+            cursor: pointer;
+        }
+
+        /* Main */
+        main {
+            margin: 10px 5px;
+        }
+
+        /* Catalogue */
+        .catalogue {
+            background-color: #fff;
+            overflow: hidden;
+            padding: 5px;
+        }
+
+        .catalogue .item {
+            float: left;
+            height: 120px;
+            width: 100px;
+            margin: 5px;
+            overflow: hidden;
+            padding: 5px;
+            border: 1px #ddd solid;
+            text-align: center;
+        }
+        
+        .catalogue .item.clickable {
+            cursor: pointer;
+        }
+
+        .catalogue .item img {
+            max-height: 80px;
+            max-width: 80px;
+        }
+
+        .catalogue .item .name {
+            font-weight: medium;
+        }
+
+        .catalogue .item .price {
+            color: #a4f;
+        }
+    </style>
+
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <!-- The main Vue instance is bound to this element by its ID -->
+    <div id="app">
+        <header>
+            <div class="logo">Shopping Cart</div>
+
+            <!-- On click, call the Vue instance's "showCartContents" method, and stop propagation of the event -->
+            <div class="cart" title="View my cart" v-on:click.stop="showCartContents">
+                <!-- Use the "cart-counter" Vue component, and set its "cart" property to the JavaScript variable named "cart" -->
+                <cart-counter v-bind:cart="cart"></cart-counter> Cart
+            </div>
+
+            <!-- Initially cloaked via the v-cloak directive -->
+            <!-- Only render this element if the "cartOpen" data field is true -->
+            <!-- If the user clicks outside this element, call the Vue instance's "hideCartContents" method (uses custom directive) -->
+            <div class="cart-popup" v-cloak v-if="cartOpen" v-click-outside="hideCartContents">
+                <!-- Only render this table if there are items in the cart -->
+                <table v-if="cart.items.length > 0">
+                    <colgroup>
+                        <col width="70px" />
+                        <col />
+                        <col />
+                        <col />
+                        <col width="26px" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Render a table row for each item in the cart -->
+                        <tr class="item" v-for="item in cart.items">
+                            <!-- Use an expression to default the src for items without a pic value -->
+                            <td><img alert="Item" :src=" item.pic ? 'img/catalogue/' + item.pic + '.svg' : 'img/catalogue/gone.svg'"></td>
+                            <td class="name">{{ item.name }}</td>
+                            <td class="total">{{ item.quantity }}</td>
+                            <!-- Calculate the total price in a template expression -->
+                            <td class="price">{{ (item.quantity * item.price).toFixed(2) }}</td>
+                            <!-- On click, call the Vue instance's "removeFromCart" method, passing in the click event and the current item object -->
+                            <td><img class="remove" alt="Remove" title="Remove" src="img/cross.svg" v-on:click="removeFromCart($event, item)"></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>Items</th>
+                            <!-- Call a method on a normal JavaScript object -->
+                            <td>{{ cart.totalQuantity() }}</td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>Total</th>
+                            <!-- Call a method on a normal JavaScript object -->
+                            <td class="price">{{ cart.totalPrice().toFixed(2) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <!-- Only render this div if the preceding condition was false -->
+                <div v-else class="empty">
+                    There are no items in your cart. <img alt="Cat" src="img/poutcat.svg">
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="catalogue">
+                <!-- Render a div for each item in the "catalogueItems" data field -->
+                <!-- Vue will assign the CSS class "clickable" whenever the "cartOpen" data field is false -->
+                <!-- On click, call the Vue instance's "addToCart" method, passing in the current item object -->
+                <div class="item" v-for="item in catalogueItems" v-bind:class="{ clickable: !cartOpen }" v-on:click="addToCart(item)">
+                    <!-- Use an expression to default the src for items without a pic value -->
+                    <img :src="item.pic ? 'img/catalogue/' + item.pic + '.svg' : 'img/catalogue/gone.svg'">
+                    <div class="name">{{ item.name }}</div>
+                    <div class="price">{{ item.price.toFixed(2) }}</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Plain old JavaScript object for the cart
+        var cart = {
+            items: [],
+            addItem(item) {
+                var existingRecord = this.findItem(item.id);
+
+                if (existingRecord) {
+                    // Update existing entry for this type of item
+                    existingRecord.quantity += 1;
+                } else {
+                    // First item of this type, so insert a new entry
+                    var newRecord = {
+                        id: item.id,
+                        pic: item.pic,
+                        name: item.name,
+                        price: item.price,
+                        quantity: 1
+                    };
+                    this.items.push(newRecord);
+                }
+            },
+            removeItem(id) {
+                var item = this.findItem(id);
+
+                if (!item) {
+                    return;
+                }
+
+                var index = this.items.indexOf(item);
+                this.items.splice(index, 1);
+            },
+            findItem: function(id) {
+                return this.items.find(item => item.id == id);
+            },
+            totalQuantity: function () {
+                var total = 0;
+                for (var i = 0; i < this.items.length; i++) {
+                    total += this.items[i].quantity;
+                }
+                return total;
+            },
+            totalPrice: function () {
+                var total = 0;
+                for (var i = 0; i < this.items.length; i++) {
+                    total += this.items[i].quantity * this.items[i].price;
+                }
+                return total;
+            }
+        };
+
+        // Custom Vue directive to detect clicks outside of an element (adapted from https://stackoverflow.com/a/42389266/1407228)
+        // Used to close the cart pop-up when the user clicks off it
+        Vue.directive('click-outside', {
+            bind: function (el, binding, vnode) {
+                el.clickOutsideEvent = function (event) {
+                    if (!el.contains(event.target)) {
+                        vnode.context[binding.expression](event);
+                    }
+                };
+                document.addEventListener('click', el.clickOutsideEvent)
+            },
+            unbind: function (el) {
+                document.removeEventListener('click', el.clickOutsideEvent)
+            },
+        });
+
+        // Register the "cart-counter" component
+        Vue.component('cart-counter', {
+            props: ['cart'],
+            template: '<span class="num-items">{{ cart.totalQuantity() }}</span>'
+        });
+
+        // Vue app
+        var app = new Vue({
+            el: "#app",
+            data: {
+                cartOpen: false,
+                cart: cart,
+                catalogueItems: [
+                        { id: 1, pic: "apple", name: "Apple", price: 1.25 },
+                        { id: 2, pic: "cherry", name: "Cherry", price: 1.50 },
+                        { id: 3, pic: "coconut", name: "Coconut", price: 2.79 },
+                        { id: 4, pic: "corn", name: "Corn", price: 2.00 },
+                        { id: 5, pic: "donut", name: "Donut", price: 2.30 },
+                        { id: 6, pic: "grapes", name: "Grapes", price: 1.45 },
+                        { id: 7, pic: "hamburger", name: "Hamburger", price: 3.45 },
+                        { id: 8, name: "Unknown", price: 17.49 },
+                        { id: 9, pic: "mango", name: "Mango", price: 1.80 },
+                        { id: 10, pic: "mushroom", name: "Mushroom", price: 0.35 },
+                        { id: 11, pic: "strawberry", name: "Strawberry", price: 0.75 },
+                        { id: 12, pic: "watermelon", name: "Watermelon", price: 3.10 }
+                    ]
+            },
+            methods: {
+                toggleCartContents() {
+                    this.cartOpen = !this.cartOpen;
+                },
+                showCartContents(event) {
+                    this.cartOpen = true;
+                },
+                hideCartContents(event) {
+                    this.cartOpen = false;
+                },
+                addToCart(item) {
+                    if (this.cartOpen) {
+                        // Close the cart instead
+                        this.cartOpen = false;
+                    }
+                    else {
+                        this.cart.addItem(item);
+                    }
+                },
+                removeFromCart(event, item) {
+                    event.stopPropagation();
+                    this.cart.removeItem(item.id);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
