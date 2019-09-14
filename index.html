@@ -59,10 +59,6 @@
         }
 
         /* Cart */
-        /*.cart {
-                background-image: url('img/cart.svg');
-                background-repeat: no-repeat;
-            }*/
         .cart .num-items::before,
         header .cart .num-items::after {
             color: #888;
@@ -119,6 +115,22 @@
         .cart-popup .item img {
             max-height: 55px;
             max-width: 55px;
+        }
+
+        .cart-popup .item .total {
+            text-align: center;
+        }
+
+        .cart-popup .item input {
+            border: 0;
+            padding: 3px;
+            text-align: right;
+            width: 50px;
+        }
+
+        /* Hide up-down arrows in number control */
+        .cart-popup .item input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
         }
         
         .cart-popup .remove {
@@ -207,9 +219,10 @@
                         <!-- Render a table row for each item in the cart -->
                         <tr class="item" v-for="item in cart.items">
                             <!-- Use an expression to default the src for items without a pic value -->
-                            <td><img alert="Item" :src=" item.pic ? 'img/catalogue/' + item.pic + '.svg' : 'img/catalogue/gone.svg'"></td>
+                            <td><img alert="Item" :src="item.pic ? 'img/catalogue/' + item.pic + '.svg' : 'img/catalogue/gone.svg'"></td>
                             <td class="name">{{ item.name }}</td>
-                            <td class="total">{{ item.quantity }}</td>
+                            <!-- Bind the input to the "item.quantity" data field so that the user can change its value -->
+                            <td class="total"><input type="number" v-model.number="item.quantity"></input></td>
                             <!-- Calculate the total price in a template expression -->
                             <td class="price">{{ (item.quantity * item.price).toFixed(2) }}</td>
                             <!-- On click, call the Vue instance's "removeFromCart" method, passing in the click event and the current item object -->
