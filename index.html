@@ -3,6 +3,7 @@
 
 <head>
     <title>Shopping Cart</title>
+    <link rel="icon" type="image/png" href="img/favicon.ico">
 
     <style>
         /* Vue */
@@ -59,6 +60,17 @@
         }
 
         /* Cart */
+        .cart {
+            width: 100px;
+        }
+
+        .cart img {
+            bottom: 2px;
+            position: relative;
+            vertical-align: middle;
+            width: 30px;
+        }
+
         .cart .num-items::before,
         header .cart .num-items::after {
             color: #888;
@@ -192,7 +204,7 @@
             <!-- On click, call the Vue instance's "showCartContents" method, and stop propagation of the event -->
             <div class="cart" title="View my cart" v-on:click.stop="showCartContents">
                 <!-- Use the "cart-counter" Vue component, and set its "cart" property to the JavaScript variable named "cart" -->
-                <cart-counter v-bind:cart="cart"></cart-counter> Cart
+                <cart-counter v-bind:cart="cart"></cart-counter> Cart <img src="img/cart.svg" />
             </div>
 
             <!-- Initially cloaked via the v-cloak directive -->
@@ -392,7 +404,7 @@
             },
             computed: {
                 sortedCart: function() {
-                    // Sprt cart items by name
+                    // Sort cart items by name
                     return this.cart.items.sort(function (a, b) {
                         return a.name.localeCompare(b.name);
                     });
