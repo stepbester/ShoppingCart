@@ -301,7 +301,9 @@
                 this.items.splice(index, 1);
             },
             findItem: function(id) {
-                return this.items.find(item => item.id == id);
+                return this.items.filter(function(item) { 
+                    return item.id == id
+                })[0];
             },
             totalQuantity: function () {
                 var total = 0;
