@@ -222,7 +222,7 @@
                             <td><img alert="Item" :src="item.pic ? 'img/catalogue/' + item.pic + '.svg' : 'img/catalogue/gone.svg'"></td>
                             <td class="name">{{ item.name }}</td>
                             <!-- Bind the input to the "item.quantity" data field so that the user can change its value -->
-                            <td class="total"><input type="number" v-model.number="item.quantity"></input></td>
+                            <td class="total"><input type="number" v-model.number="item.quantity" /></td>
                             <!-- Calculate the total price in a template expression -->
                             <td class="price">{{ (item.quantity * item.price).toFixed(2) }}</td>
                             <!-- On click, call the Vue instance's "removeFromCart" method, passing in the click event and the current item object -->
@@ -272,7 +272,7 @@
         // Plain old JavaScript object for the cart
         var cart = {
             items: [],
-            addItem(item) {
+            addItem: function(item) {
                 var existingRecord = this.findItem(item.id);
 
                 if (existingRecord) {
@@ -290,7 +290,7 @@
                     this.items.push(newRecord);
                 }
             },
-            removeItem(id) {
+            removeItem: function(id) {
                 var item = this.findItem(id);
 
                 if (!item) {
@@ -363,16 +363,16 @@
                     ]
             },
             methods: {
-                toggleCartContents() {
+                toggleCartContents: function() {
                     this.cartOpen = !this.cartOpen;
                 },
-                showCartContents(event) {
+                showCartContents: function(event) {
                     this.cartOpen = true;
                 },
-                hideCartContents(event) {
+                hideCartContents: function(event) {
                     this.cartOpen = false;
                 },
-                addToCart(item) {
+                addToCart: function(item) {
                     if (this.cartOpen) {
                         // Close the cart instead
                         this.cartOpen = false;
@@ -381,7 +381,7 @@
                         this.cart.addItem(item);
                     }
                 },
-                removeFromCart(event, item) {
+                removeFromCart: function(event, item) {
                     event.stopPropagation();
                     this.cart.removeItem(item.id);
                 }
