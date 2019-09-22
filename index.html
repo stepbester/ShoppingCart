@@ -5,6 +5,11 @@
     <title>Shopping Cart</title>
     <link rel="icon" type="image/png" href="img/favicon.ico">
 
+    <!-- Some meta tags to make the page more mobile-friendly -->
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="HandheldFriendly" content="true">
+
     <style>
         /* Vue */
         [v-cloak] {
@@ -17,6 +22,14 @@
             font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
             margin: 0;
             padding: 0;
+        }
+
+        html {
+            font-size: 100%;
+        }
+
+        img {
+            max-width: 100%;
         }
 
         .app {
@@ -61,7 +74,7 @@
 
         /* Cart */
         .cart {
-            width: 100px;
+            min-width: 100px;
         }
 
         .cart img {
@@ -90,6 +103,7 @@
         .cart .num-items {
             color: #a4f;
             font-weight: bold;
+            text-align: right;
         }
 
         /* Cart Pop-up */
@@ -97,7 +111,7 @@
             background-color: #fff;
             border: 1px #ddd solid;
             border-radius: 5px;
-            min-width: 350px;
+            overflow: hidden;
             padding: 5px;
             top: 40px;
             right: 10px;
@@ -120,8 +134,8 @@
             width: 100%;
         }
 
-        .cart-popup th {
-            text-align: left;
+        .cart-popup td {
+            padding: 0 10px;
         }
 
         .cart-popup .item img {
@@ -129,12 +143,18 @@
             max-width: 55px;
         }
 
-        .cart-popup .item .total {
-            text-align: center;
+        .cart-popup td.total {
+            text-align: right;
+        }
+
+        .cart-popup td.price {
+            text-align: right;
         }
 
         .cart-popup .item input {
             border: 0;
+            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            font-size: 1em;
             padding: 3px;
             text-align: right;
             width: 50px;
@@ -147,6 +167,7 @@
         
         .cart-popup .remove {
             cursor: pointer;
+            width: 26px;
         }
 
         /* Main */
@@ -165,7 +186,7 @@
 
         .catalogue .item {
             height: 120px;
-            width: 100px;
+            width: 128px;
             margin: 5px;
             overflow: hidden;
             padding: 5px;
@@ -188,6 +209,26 @@
 
         .catalogue .item .price {
             color: #a4f;
+        }
+
+        /* Adjust style for very narrow screens */
+        @media only screen and (max-width: 337px)
+        {
+            .cart {
+                min-width: 65px;
+            }
+
+            .num-items {
+                display: none;
+            }
+
+            .cart-popup {
+                left: 10px;
+            }
+
+            .hide-small {
+                display: none;
+            }
         }
     </style>
 
@@ -222,9 +263,9 @@
                     </colgroup>
                     <thead>
                         <tr>
-                            <th></th>
+                            <th class="hide-small"></th>
                             <th>Item</th>
-                            <th>Quantity</th>
+                            <th>Qty</th>
                             <th>Price</th>
                         </tr>
                     </thead>
@@ -233,9 +274,9 @@
                         <tr class="item" v-for="item in sortedCart">
                             <!-- Use an expression to default the src for items without a pic value -->
                             <td><img alert="Item" :src="item.pic ? 'img/catalogue/' + item.pic + '.svg' : 'img/catalogue/gone.svg'"></td>
-                            <td class="name">{{ item.name }}</td>
+                            <td class="name hide-small">{{ item.name }}</td>
                             <!-- Bind the input to the "item.quantity" data field so that the user can change its value -->
-                            <td class="total"><input type="number" v-model.number="item.quantity" /></td>
+                            <td class="total"><input type="number" min="1" max="100" v-model.number="item.quantity" /></td>
                             <!-- Calculate the total price in a template expression -->
                             <td class="price">{{ (item.quantity * item.price).toFixed(2) }}</td>
                             <!-- On click, call the Vue instance's "removeFromCart" method, passing in the click event and the current item object -->
@@ -244,16 +285,10 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th></th>
-                            <th></th>
-                            <th>Items</th>
-                            <!-- Call a method on a normal JavaScript object -->
-                            <td>{{ cart.totalQuantity() }}</td>
-                        </tr>
-                        <tr>
-                            <th></th>
-                            <th></th>
+                            <th class="name hide-small"></th>
                             <th>Total</th>
+                            <!-- Call a method on a normal JavaScript object -->
+                            <td class="total">{{ cart.totalQuantity() }}</td>
                             <!-- Call a method on a normal JavaScript object -->
                             <td class="price">{{ cart.totalPrice().toFixed(2) }}</td>
                         </tr>
@@ -261,7 +296,7 @@
                 </table>
                 <!-- Only render this div if the preceding condition was false -->
                 <div v-else class="empty">
-                    There are no items in your cart. <img alt="Cat" src="img/poutcat.svg">
+                    There are no items in your cart. <img class="hide-x-small" alt="Cat" src="img/poutcat.svg">
                 </div>
             </div>
         </header>
